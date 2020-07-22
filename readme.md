@@ -121,3 +121,68 @@ const t = getTimeRemaining(endtime);
 ```javascript
 setClock('.timer', deadline);
 ```
+#### 3.Modal
+##### получил элементы со страницы с которыми буду работать, воспользовался дата атрибутами для получения 2-х элементов: data-modal и data-close.
+```javascript
+const modalTrigger = document.querySelectorAll('[data-modal]'),
+        modal = document.querySelector('.modal'),
+        modalCloseBtn = document.querySelector('[data-close]');
+```
+##### повесил на кнопки обработчик событий воспользовавшись при перереборе кнопка методом forEach.
+```javascript
+modalTrigger.forEach(btn => {
+        btn.addEventListener('click', openModal);
+    });
+```
+##### создал две функции 1. добавляет класс из стилей show показать и удаляет класс hide, 2. делает всё наоборот добавляет класс hide и удаляет класс show.
+```javascript
+    function closeModal() {
+        modal.classList.add('hide');
+        modal.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+
+    function openModal() {
+        modal.classList.add('show');
+        modal.classList.remove('hide');
+        document.body.style.overflow = 'hidden';
+    }
+```
+##### на modalCloseBtn повесил обработчик событий, что при клике в качестве аргумента запускать функцию закрытия модального окна.
+```javascript
+modalCloseBtn.addEventListener('click', closeModal);
+```
+##### при клике за пределами окна модальное окно закрывается, в стилях  width: 100% и height: 100%, если кликнули непосредственно по подложке, то окно закрывается.
+```javascript
+modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+```
+##### повесил на весь document можно и на window обработчик событий, что при клике на escape модальное окно закрывается. Если событие произошло на клавише escape и classList установлен 'show', то запускать функцию закрытия модального окна closeModal.
+```javascript
+document.addEventListener('keydown', (e) => {
+        if (e.code === "Escape" && modal.classList.contains('show')) { 
+            closeModal();
+        }
+    });
+```
+##### можно также запускать модальное окно через какой то промежуток времени.
+```javascript
+const modalTimerId = setTimeout(openModal, 3000);
+```
+##### функция showModalByScroll отвечает за то, что при скроле до низа странице открывается модальное окно. pageYOffset сколько пикселей отлистал пользователь по оси Y. Возьмем свойство которе отвечает за прокрутку, свойство которое отображает высоту именно клиента именно видимой части и будем сравнивать с полной прокруткой и полным контентом который есть, если 2 этих выражения будут совпадать то значит пользователь долистал до конца страницы.
+```javascript
+function showModalByScroll() {
+        if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight) {
+            openModal();
+            window.removeEventListener('scroll', showModalByScroll);
+        }
+    }
+```
+##### на весь глобальный объект вешается  событие скрола и в качестве аргумента вызывается функция showModalByScroll.
+```javascript
+window.addEventListener('scroll', showModalByScroll);
+```
+
