@@ -1,5 +1,5 @@
-### JS
-#### 1.Tabs
+# JS
+## 1.Tabs
 ##### получил со страницы нужные для работы элементы:
 ```javascript
 let tabs = document.querySelectorAll('.tabheader__item'),
@@ -50,7 +50,7 @@ tabs.forEach((item, i) => {
                     showTabContent(i);
                 }
 ```
-#### 2.Timer
+## 2.Timer
 ##### устанавливаю отправную точку.
 ```javascript
 const deadline = '2020-10-11';
@@ -121,7 +121,7 @@ const t = getTimeRemaining(endtime);
 ```javascript
 setClock('.timer', deadline);
 ```
-#### 3.Modal
+## 3.Modal
 ##### получил элементы со страницы с которыми буду работать, воспользовался дата атрибутами для получения 2-х элементов: data-modal и data-close.
 ```javascript
 const modalTrigger = document.querySelectorAll('[data-modal]'),
@@ -185,4 +185,4 @@ function showModalByScroll() {
 ```javascript
 window.addEventListener('scroll', showModalByScroll);
 ```
-
+## 4.Используем классы для создание карточек меню
