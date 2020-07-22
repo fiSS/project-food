@@ -186,3 +186,47 @@ function showModalByScroll() {
 window.addEventListener('scroll', showModalByScroll);
 ```
 ## 4.Используем классы для создание карточек меню
+##### использую классы и конструктор для контруирования однотипных элементов на странице, будет включать в себя: картинку, альтернативное назвавние, заголовок, description, цену родитель(parentSelector).
+```javascript
+class MenuCard {
+        constructor(src, alt, title, descr, price, parentSelector) {
+            this.src = src;
+            this.alt = alt;
+            this.title = title;
+            this.descr = descr;
+            this.price = price;
+            this.parent = document.querySelector(parentSelector);
+            this.transfer = 27;
+            this.changeToUAH(); 
+        }
+```
+##### в конструкторе создаю метод(анонимную функцию) render которая будет выполнять следующее: создавать новый div на странице и в него при помощи innerHTML воспользовавшись интерполяцией сразу будет помещён код HTML, за исключением тех элементов которые будем собирать в конструкторе, так же указываем, что элемент является дочерним для parent.
+```javascript
+        render() {
+            const element = document.createElement('div');
+            element.innerHTML = `
+                <div class="menu__item">
+                    <img src=${this.src} alt=${this.alt}>
+                    <h3 class="menu__item-subtitle">${this.title}</h3>
+                    <div class="menu__item-descr">${this.descr}</div>
+                    <div class="menu__item-divider"></div>
+                    <div class="menu__item-price">
+                        <div class="menu__item-cost">Цена:</div>
+                        <div class="menu__item-total"><span>${this.price}</span> грн/день</div>
+                    </div>
+                </div>
+            `;
+            this.parent.append(element);
+        }
+```
+##### Конструктор готов, теперь можно создавать новые экземпляры MenuCard уже динамически скриптом через "new", прямо на лету, чтобы не добавляет в переменную, потом вызывать это сокращает код, после этого в качестве аргумента вызывается метод render, код по карточкам из html можно удалять, теперь их можно создавать динамически скриптом с указанием параметоров передаваемых в конструктор.
+```javascript
+    new MenuCard(
+        "img/tabs/vegy.jpg",
+        "vegy",
+        'Меню "Фитнес"',
+        'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
+        9,
+        ".menu .container"
+    ).render();
+```
