@@ -196,13 +196,14 @@ window.addEventListener('DOMContentLoaded', function() {
         ".menu .container"
     ).render();
 
-    new MenuCard(
+    const div = new MenuCard(
         "img/tabs/elite.jpg",
         "elite",
         'Меню “Премиум”',
         'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!',
         21,
         ".menu .container"
-    ).render();
+    );
+    div.render();
 
 });
