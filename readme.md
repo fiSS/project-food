@@ -230,3 +230,189 @@ class MenuCard {
         ".menu .container"
     ).render();
 ```
+
+## 5. forms отправка данных на сервер с использованием JSON формата передачи данных.
+#### получил со страницы коллекцию форм.
+```javascript
+const forms = document.querySelectorAll('form');
+```
+#### создал обект из которогы буду буду брать статусы отправки данных из формы.
+```javascript
+const message = {
+        loading: 'загрузка',
+        success: 'спасибо мы скоро с вами свяжемся',
+        failure: 'что-то пошло не так'
+    };
+```
+#### Фунция которая будет отвечать за постинг данных. async говорит нам, что будет какой то асинхорнный код, js видит await и говорит я вижу опрератор await и мне нужно дождаться выполнения этого запроса, какой будет результат мне не важно. Js будет ждать окончания запроса вплодь до 30 секунд(по стандарту) и вот тогда вернется результат сработает  код и await пропустит работу кода дальше, в переменную res поместится какой то результат который получили от сервера и дальше можно с ним работать.
+```javascript
+const postData = async (url, data) => {
+        let res = await fetch(url, {
+            method: "POST",
+            headers: {
+                'Content-type': 'application/json'
+            },
+            body: data
+        });
+
+        return await res.json();
+    };
+```
+#### на эту форму навесил обработчик событий (событие submit-a, срабатывает каждый раз когда пытаемся отправить форму) и отменил стандартное поведение браузера.
+```javascript
+form.addEventListener('submit', (e) => {
+            e.preventDefault();
+```
+#### создал новый XMLHttpRequest для отправки данных на сервер, метод open открывает соединение.
+```javascript
+const request = new XMLHttpRequest();
+      request.open('POST', 'server.php');
+```
+#### formData. самый простой способ, чтобы отправить данные из формы это использовать объект 'form-data', не всегда нужно передававать в формате JSON, делается это так создается новая переменная и во внутрь помещается как обычный конструктор через new formData. Во внутрь помещаем ту форму из которой нужно собрать данные. Когда мы подразумеваем, что данные должны идти на сервер, должны абсолютно всегда в HTML у данного элемента указывать атрибут name.(иначе formData не сможет найти этот инпут и взять из него value).
+```javascript
+const formData = new FormData(form);
+```
+### Настройка заголовков, чтобы отправить в формате formadata. Когда используем XMLHttpRequest и объекта formData нам заголовок устанавливать не нужно, он устанавливается автоматически. Код ниже не нужен!!!
+```javascript
+request.setRequestHeader('content-type', 'multipart/form-data');
+```
+#### дальше отправляем данные на сервер в формате formadata:
+```javascript
+request.send(formData);
+```
+#### эта команда берет те данные которые пришли с клиента превращает их в строку и показывает обратно на клиенте. Тот response который будет приходить с сервера.
+ 
+```php
+echo var_dump($_POST);
+```
+
+#### JSON. чтобы отправить данные в формате JSON:
+```javascript
+ request.setRequestHeader('content-type', 'aplication/json');
+            const formData = new FormData(form);
+```
+
+#### есть объект formadata который необходимо превратить в вормат JSON, для этого есть 2 приёма:
+##### 1.создаем промежуточный объект object, переберём formData при помощи forEach и поместим все данные в object.
+```javascript
+            const object = {};
+            formData.forEach(function(value, key){
+                object[key] = value;
+            });
+```
+##### 2. более элегантный способ преобразить formdata в json, получим данные с формы в формате матрицы, теперь надо этот массив с массивами превратить в объект метод fromEntries(из матрицы сделать обычный объект).
+```javascript
+const json = JSON.stringify(Object.fromEntries(formData.entries()));
+```
+#### Теперь обычный объект, а не formData можем использвать конвертацию в JSON при помощи метода stringify отправляются данные на сервер. stringify превращает обычный объект в JSON.
+```javascript
+const json = JSON.stringify(object);
+```
+
+#### отправляем данные на сервер в формате JSON. все то что приходит от клиента будет декодировать из JSON. как на php коде получить JSON данные и с ними поработать.
+```javascript
+request.send(json);
+```
+
+```php
+?php
+$_POST = json_decode(file_get_contents("php://input"), true);
+echo var_dump($_POST);
+```
+#### На сам-ом request отслеживаю событие load, если статус 200(все ок запрос прошел), выводится сообщение что все ОК и при помощи метода reset очищаю форму, если что то идёт не так, уведомляю что что-то не так. Метод reset очистит форму. Альтернативный вариант взять инпуты, перебрать их и очистить их value.
+```javascript
+            request.addEventListener('load', () => {
+                if(request.status === 200) {
+                    console.log(request.response);
+                    statusMessage.textContent = message.success;
+                    form.reset();
+                    setTimeout(() => {
+                        statusMessage.remove();
+                    }, 4000);
+                } else {
+                    statusMessage.textContent = message.failure;
+                }
+            });
+```
+#### Взять все формы и под каждую из них подвязать функцию postData. Сейчас на каждую форму будет подвязана функция postData которая и будет обработчиком событий при отправке.
+```javascript
+forms.forEach(item => {
+        postData(item);
+    });
+```
+
+#### отпраывка данных на сервер современным методом используя fetch.(куда, каким образом и что именно) код намного короче по сравнению с XMLHttpRequest. Для того чтобы использовать fetch необходимо указать fetch(). 1. Отправка formadata. закоментировать трансформацию formada в обычный объект. в работе используется локальный json-server для старта npx json-server db.json, и теперь берем и отправляем этот json на сервер.
+```javascript
+                postData('http://localhost:3000/requests', json)
+                .then(data => {
+                    console.log(data);
+                    showThanksModal(message.success);
+                    statusMessage.remove();
+                }).catch(() => {
+                    showThanksModal(message.failure);
+                }).finally(() => {
+                    form.reset();
+                });
+```
+
+#### db.json   Cюда будут записываться обращение пользователя когда он отправляет форму с сайта. И будут как то отображаться.
+```javascript
+"requests": [
+  ]
+  ```
+
+#### отправка данных в формате JSON. Используем тот же трюк с formadata который необходимо превратить в вормат JSON с промежуточным объектом. Дальше этот объект JSON необходимо передать в body. Отличие от предыдущего только:
+```javascript
+    headers: {
+                    'content-type': 'aplication/json'
+                },
+                body: JSON.stringify(object)
+```
+#### в php тоже указать в формат JSON.
+```php
+$_POST = json_decode(file_get_contents("php://input"), true);
+```
+
+## 6. Динамически формируем сообщение после отправки формы. Функционал относится к отправке форм.
+#### получил modal__dialog:
+```javascript
+const prevModalDialog = document.querySelector('.modal__dialog');
+```
+#### скрываем этот элемент перед тем как показать модальное окно. После этого сразу подвязывается функция openModal.
+```javascript
+prevModalDialog.classList.add('hide');
+openModal();
+```
+#### создаем динамически новое модальное окно, один modal__dialog заменяем другим и просто формируем ту вёрстку которая будет находится внутри. message сообщение которое будет передаваться о статусе отправки.
+```javascript
+const thanksModal = document.createElement('div');
+        thanksModal.classList.add('modal__dialog');
+        thanksModal.innerHTML = `
+        <div class="modal__content">
+            <div class="modal__close" data-close>×</div>
+            <div class="modal__title">${message}</div>
+        </div>
+        `;
+```
+#### помещаем элемент на страницу:
+```javascript
+document.querySelector('.modal').append(thanksModal);
+```
+#### через 4 секунды всё должно вернуться на свои места, рукототворный блок исчезает, а старое, что было на странице появится, через 4 секунды.
+```javascript
+setTimeout(() => {
+            thanksModal.remove();
+            prevModalDialog.classList.add('show');
+            prevModalDialog.classList.remove('hide');
+            closeModal();
+        }, 4000);
+```
+
+#### если элементы формируются динамически, то обрабочики событий на них не повесятся(используем делегирование событий), доработка скрипта, если кликаем на подложку или на крестик то закрывается модальное окно. Теперь в созданном скриптом крестик тоже будет работать.
+```javascript
+modal.addEventListener('click', (e) => {
+        if (e.target === modal || e.target.getAttribute('data-close') == '') {
+            closeModal();
+        }
+    });
+```
