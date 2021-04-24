@@ -1,3 +1,61 @@
+# Проект разбит на отдельные модули(calc.js, cards.js, forms.js, modal.js, slider.js tabs.js, timer.js) и вынесен в папке modules проект находотятся все составляющию для сборки в один конечный файл bundle.js. Для каждого отдельного модуля создаётся функция: 
+```javascript 
+function name() {
+    
+}
+export default name;
+```
+
+#### Фунционал по работе с сервером вынесен в отдельный файл services.js. И мы его просто берём и экспортируем огттуда:
+```javascript
+export {postData};
+```
+#### А в форму уже его импортируем:
+```javascript
+import {postData} from '../services/services';
+```
+
+#### В script.js ипортируем все эти модули.
+```javascript
+import  calc from './modules/calc';
+import  cards from './modules/cards';
+import  forms from './modules/forms';
+import  modal from './modules/modal';
+import  slider from './modules/slider';
+import  tabs from './modules/tabs';
+import  timer from './modules/timer';
+import {openModal} from './modules/modal';
+```
+#### Повесилл обработчик событий на весь глобальный объект window и внутри будут запускать уже все импорированные фунции. Во внутрь сразу передаются аргументы при вызове той или иной фунции.
+```javascript
+
+window.addEventListener('DOMContentLoaded', function () {
+
+        const modalTimerId = setTimeout(() => openModal('.modal', modalTimerId), 30000);
+            
+        calc();
+        cards();
+        forms('form', modalTimerId);
+        modal('[data-modal]', '.modal', modalTimerId);
+        tabs('.tabheader__item', '.tabcontent', '.tabheader__items', 'tabheader__item_active');
+        tabs('.tabheader__item', '.tabcontent', '.tabheader__items', 'tabheader__item_active');
+        timer('.timer', '2021-08-11');
+        slider({
+            container: ".offer__slider",
+            nextArrow: ".offer__slider-next",
+            prevArrow: ".offer__slider-prev",
+            slide: ".offer__slide",
+            totalCounter: "#total",
+            currentCounter: "#current",
+            wrapper: ".offer__slider-wrapper",
+            field: '.offer__slider-inner'
+              
+      });
+
+});
+```
+
+
 # JS
 ## 1.Tabs
 ##### получил со страницы нужные для работы элементы:
@@ -219,7 +277,7 @@ class MenuCard {
             this.parent.append(element);
         }
 ```
-##### Конструктор готов, теперь можно создавать новые экземпляры MenuCard уже динамически скриптом через "new", прямо на лету, чтобы не добавляет в переменную, потом вызывать это сокращает код, после этого в качестве аргумента вызывается метод render, код по карточкам из html можно удалять, теперь их можно создавать динамически скриптом с указанием параметоров передаваемых в конструктор.
+##### 1. способ не рациональный, придётся каждый раз вручную создавать карточки меню.Конструктор готов, теперь можно создавать новые экземпляры MenuCard уже динамически скриптом через "new", прямо на лету, чтобы не добавляет в переменную, потом вызывать это сокращает код, после этого в качестве аргумента вызывается метод render, код по карточкам из html можно удалять, теперь их можно создавать динамически скриптом с указанием параметоров передаваемых в конструктор.
 ```javascript
     new MenuCard(
         "img/tabs/vegy.jpg",
@@ -229,6 +287,58 @@ class MenuCard {
         9,
         ".menu .container"
     ).render();
+```
+##### 2. Способ создать Функцию для get запросов получить данные с сервера и на их основании строить карточки меню. есть 2 свойства которые получаем от промиса 1.ok дословно что то получили всё ОК либо не ОК. 2.status тот статус который вернуд нам сервер(200, 404, 500...). throw выкидывает ошибку(то что попадает в консоль и их можно видеть). async await превращают асинхронный код в синхронный, всегда идут в паре. Когда будем подходить к пункту меню, будем получать массив с объектами и на основание каждого свойства объекта сможем построить карточки меню.
+```javascript
+const getResource = async (url) => {
+        const res = await fetch(url);
+
+        if (!res.ok) {
+            throw new Error(`couldnt not fetch ${url}, status: ${res.status}`);
+        }
+
+        return await res.json();
+    };
+```
+#### Теперь есть фунция которая создана для get запросов, вызываю эту функцию и указываю тот путь по которому открыт json сервер.
+```javascript
+getResource('http://localhost:3000/menu')
+```
+#### запрос ушёл и его необходимо обработать при помощи then. Те данные которые придут с сервера в трансофрмированном виде и внутри не объект, а массив и его можно перебрать при помощи forEach. Используется синтаксис деструктуризации объектов(из объекта вытаскивам свойства в качестве отдельных переменных). Далее применить к нему метод render. Этот конструктор будет вызываться столько раз, сколько объектов внутри массива, который придёт с сервера.
+```javascript
+.then(data => {
+            data.forEach(({ img, altimg, title, descr, price }) => {
+                new Carts(img, altimg, title, descr, price, '.menu .container').render();
+            });
+        });
+```
+#### Второй вариант он не будет формировать классы, а будет формировать вёрстку на лету. лишаемся шаблонизации, но если нужно 1 раз что то построить то подходит.
+```javascript
+getResource('http://localhost:3000/menu')
+        .then(data => createCard(data));
+
+        function createCard(data) {
+            data.forEach(({img, altimg, title, descr, price}) => {
+                const element = document.createElement('div');
+
+                price = price * 27;
+
+                element.classList.add('menu__item');
+
+                element.innerHTML = `
+                <img src=${img} alt=${altimg}>
+                <h3 class="menu__item-subtitle">${title}</h3>
+                <div class="menu__item-descr">${descr}</div>
+                <div class="menu__item-divider"></div>
+                <div class="menu__item-price">
+                    <div class="menu__item-cost">Цена:</div>
+                    <div class="menu__item-total"><span>${price}</span> грн/день</div>
+                </div>
+                `;
+
+                document.querySelector('.menu .container').append(element);
+            });
+        }
 ```
 
 ## 5. forms отправка данных на сервер с использованием JSON формата передачи данных.
