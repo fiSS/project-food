@@ -1,0 +1,34 @@
+{
+  "name": "project-food",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "fis",
+  "license": "ISC",
+  "browserslist": [
+    ">0.5%"
+  ],
+  "devDependencies": {
+    "@babel/cli": "^7.13.14",
+    "@babel/core": "^7.13.15",
+    "@babel/preset-env": "^7.13.15",
+    "babel-loader": "^8.2.2",
+    "core-js": "^3.10.1",
+    "json-server": "^0.16.3"
+  },
+  "dependencies": {
+    "@babel/polyfill": "^7.12.1",
+    "es6-promise-polyfill": "^1.2.0",
+    "nodelist-foreach-polyfill": "^1.2.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fiSS/project-food.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fiSS/project-food/issues"
+  },
+  "homepage": "https://github.com/fiSS/project-food#readme"
+}
