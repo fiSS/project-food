@@ -55,6 +55,11 @@ window.addEventListener('DOMContentLoaded', function () {
 });
 ```
 
+#### В проект так же подключен es6-promise-polyfill(npm i es6-promise), для поддержки старых браузеров.
+```javascript
+var Promise = require('es6-promise-polyfill').Promise;
+
+```
 
 # JS
 ## 1.Tabs
