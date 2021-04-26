@@ -1,4 +1,4 @@
-### Проект разбит на отдельные модули(calc.js, cards.js, forms.js, modal.js, slider.js tabs.js, timer.js) и вынесен в папке modules в проекте находяттся все составляющию для сборки webpack-om в один конечный файл bundle.js. Для каждого отдельного модуля создаётся функция: 
+### Проект разбит на отдельные модули(calc.js, cards.js, forms.js, modal.js, slider.js tabs.js, timer.js) и вынесен в папке modules в проекте находятся все составляющию для сборки webpack-om в один конечный файл bundle.js. Для каждого отдельного модуля создаётся функция: 
 ```javascript 
 function name() {
     
